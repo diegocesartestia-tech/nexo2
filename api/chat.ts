@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 
 export const config = {
@@ -9,13 +8,13 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { history, message, aiName, userName, systemInstruction } = req.body;
+    const { history = [], message, aiName, userName, systemInstruction } = req.body;
 
     const personalizedInstruction = `
 ${systemInstruction}
@@ -45,8 +44,9 @@ Não deixe o papo morrer. Faça perguntas curtas e empáticas.
     return res.status(200).json({
       text: result.text,
     });
+
   } catch (err: any) {
-    console.error(err);
+    console.error('Erro Gemini:', err);
     return res.status(500).json({ error: 'Erro ao falar com a Gemini' });
   }
 }
